@@ -1,46 +1,28 @@
 const fs = require('fs');
-const path = require('path'); // Add this line
+const path = require('path');
 const JSONStream = require('JSONStream');
 const es = require('event-stream');
 const { readerAndSaveToMongo } = require('./reader');
 
-// Parses the large chunk of raw GraphQL data
-// Specify the file path
-const parser = (inputFilePath) => {
-  // Create a readable stream for the JSON file
-  const jsonStream = fs.createReadStream(inputFilePath, { encoding: 'utf8' })
-    .pipe(JSONStream.parse('*'));
-
-  // Create an array to store the processed JSON objects
+const parser = async (graphqlResponses) => {
   const processedData = [];
 
-  // Process the JSON stream
-  jsonStream.pipe(es.mapSync((data) => {
-    // Further processing of the JSON data can be done here
-    // In this example, we just push each JSON object into the array
-    processedData.push(data);
-  }));
-
-  // Handle errors
-  jsonStream.on('error', (err) => {
-    console.error('Error reading the JSON file:', err);
+  graphqlResponses.forEach((response, index) => {
+    // Further processing of the GraphQL response can be done here
+    // In this example, we just push each response into the array
+    processedData.push(response);
   });
 
-  // Handle the end of the stream
-  jsonStream.on('end', () => {
-    // Extract the file number from the input file name
-    const fileNumber = inputFilePath.match(/raw_graphql_response_(\d+)\.json/)[1];
-    const outputFilePath = path.join(__dirname, `output_${fileNumber}.json`);
+  // Save the processed data to the output file
+  // In this example, we're not saving it to a file, just logging it
+  console.log('Processed Data:', processedData);
 
-    // Save the processed data to the output file
-    fs.writeFile(outputFilePath, JSON.stringify(processedData, null, 2), (writeErr) => {
-      if (writeErr) {
-        console.error(`Error writing to ${outputFilePath}:`, writeErr);
-      } else {
-        console.log(`Data has been successfully saved to ${outputFilePath}`);
-      }
-    });
-  });
+  try {
+    // Call readerAndSaveToMongo after processing
+    return processedData;
+  } catch (error) {
+    console.error('Error in parser:', error);
+  }
 };
 
 module.exports = { parser };

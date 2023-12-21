@@ -1,9 +1,10 @@
 const puppeteer = require('puppeteer');
-const fs = require('fs/promises');
-const {detector} = require("./detector");
+const { detector } = require('./detector');
 const { readerAndSaveToMongo } = require('./reader');
+const { parser } = require("./parser");
 const chromium = require('chrome-aws-lambda');
-const path = require('path'); 
+const path = require('path');
+const JSONStream = require('JSONStream');
 
 module.exports = async (searchQuery) => {
   const email = 'alperen.harmankasii@gmail.com';
@@ -11,7 +12,7 @@ module.exports = async (searchQuery) => {
   const graphqlResponses = [];
 
   const browser = await puppeteer.launch({
-    headless: true,
+    headless: false,
     defaultViewport: null,
     executablePath: await chromium.executablePath,
     args: [
@@ -42,9 +43,6 @@ module.exports = async (searchQuery) => {
       try {
         const responseBody = await response.text();
         graphqlResponses.push(responseBody);
-
-        // Uncomment the line below if you want to log responses to the console as well
-        // console.log('Raw GraphQL Response:', responseBody);
       } catch (error) {
         console.error('Error getting raw GraphQL response:', error.message);
       }
@@ -87,30 +85,54 @@ module.exports = async (searchQuery) => {
   }, 500);
 
   // Wait for 10 seconds to capture more GraphQL responses
-  await new Promise(resolve => setTimeout(resolve, 10000));
+  await new Promise(resolve => setTimeout(resolve, 8000));
 
   // Disable interception and stop scrolling before closing the browser
   isInterceptionEnabled = false;
   clearInterval(scrollInterval);
 
-  // Save each raw GraphQL response to a separate JSON file
-  for (let i = 0; i < graphqlResponses.length; i++) {
-    // Use path.join to construct the absolute file path
-    const filePath = path.join(__dirname, `raw_graphql_response_${i + 1}.json`);
-    await fs.writeFile(filePath, graphqlResponses[i]);
-  }
-
-
   // Close the browser
   await browser.close();
 
   try {
-    // Call detector asynchronously
-    await detector();
+    // Call detector asynchronously with the stored GraphQL responses
+    const returnedResponses = await detector(graphqlResponses);
+    
+    // Use JSONStream for parsing
+    const processedData = await new Promise((resolve, reject) => {
+      const parserStream = JSONStream.parse();
+      const results = [];
+    
+      parserStream.on('data', (data) => {
+        results.push(data);
+      });
+    
+      parserStream.on('end', () => {
+        resolve(results);
+      });
+    
+      parserStream.on('error', (error) => {
+        reject(error);
+      });
+    
+      // Pipe the returnedResponses array into the JSONStream parser
+      returnedResponses.forEach(response => parserStream.write(response));
+    
+      // End the stream to trigger the 'end' event
+      parserStream.end();
+    });
+    
+    
+
+     
+    // Now processedData contains the parsed JSON data
 
     // Call readerAndSaveToMongo after detector completes
-    await readerAndSaveToMongo();
+    const results = await readerAndSaveToMongo(processedData);  
+    return results;
   } catch (error) {
     console.error('Error in Puppeteer script:', error);
+    // Return an empty array or handle the error appropriately
+    return [];
   }
 };
