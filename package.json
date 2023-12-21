@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "rsync -a ./ /public/uploads && node app.js"
+    "start": "rsync -a ./ ./ && node app.js"
   },
   "author": "",
   "license": "ISC",
