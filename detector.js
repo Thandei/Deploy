@@ -29,6 +29,7 @@ const detector = async (graphqlResponses) => {
     }
   } else {
     console.log('No GraphQL responses contain the "serpResponse" attribute.');
+    console.log('Responses:', graphqlResponses); // Add this line for additional logging
     return []; // Return an empty array if no responses are detected
   }
 };
