@@ -80,7 +80,7 @@ const readerAndSaveToMongo = async () => {
   });
 
   // Save allResults to a single JSON file
-  const combinedFilePath = 'allResponse.json';
+  const combinedFilePath = './allResponse.json';
   fs.writeFile(combinedFilePath, JSON.stringify(allResults, null, 2), (writeErr) => {
     if (writeErr) {
       console.error(`Error writing to the output file ${combinedFilePath}:`, writeErr);

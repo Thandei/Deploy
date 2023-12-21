@@ -13,12 +13,12 @@ app.get('/api/facebook', async (req, res) => {
 
   try {
     // Read the contents of allResponses.json
-    const jsonResponse = await fs.readFile('allResponse.json', 'utf-8');
+    const jsonResponse = await fs.readFile('./allResponse.json', 'utf-8');
   
     // Send the JSON response
     res.json(JSON.parse(jsonResponse));
   } catch (error) {
-    console.error('Error reading allResponses.json:', error);
+    console.error('Error reading allResponse.json:', error);
     res.status(500).json({ error: error.message }); // Send error details in the response
   }
 
