@@ -12,7 +12,7 @@ module.exports = async (searchQuery) => {
   const graphqlResponses = [];
 
   const browser = await puppeteer.launch({
-    headless: false,
+    headless: true,
     defaultViewport: null,
     executablePath: await chromium.executablePath,
     args: [
