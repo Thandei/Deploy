@@ -2,6 +2,7 @@ const puppeteer = require('puppeteer');
 const fs = require('fs/promises');
 const {detector} = require("./detector");
 const { readerAndSaveToMongo } = require('./reader');
+const chromium = require('chrome-aws-lambda');
 
 module.exports = async (searchQuery) => {
   const email = 'alperen.harmankasii@gmail.com';
@@ -11,7 +12,12 @@ module.exports = async (searchQuery) => {
   const browser = await puppeteer.launch({
     headless: true,
     defaultViewport: null,
-    args: ['--start-maximized', '--disable-notifications'],
+    executablePath: await chromium.executablePath,
+    args: [
+      ...chromium.args,
+      '--start-maximized',
+      '--disable-notifications',
+    ],
   });
 
   const page = await browser.newPage();
