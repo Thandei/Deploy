@@ -85,7 +85,7 @@ module.exports = async (searchQuery) => {
   }, 500);
 
   // Wait for 10 seconds to capture more GraphQL responses
-  await new Promise(resolve => setTimeout(resolve, 8000));
+  await new Promise(resolve => setTimeout(resolve, 15000));
 
   // Disable interception and stop scrolling before closing the browser
   isInterceptionEnabled = false;
