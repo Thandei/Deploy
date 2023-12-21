@@ -1,7 +1,8 @@
 const fs = require('fs');
+const path = require('path'); // Add this line
 const JSONStream = require('JSONStream');
 const es = require('event-stream');
-const {readerAndSaveToMongo} = require("./reader");
+const { readerAndSaveToMongo } = require('./reader');
 
 // Parses the large chunk of raw GraphQL data
 // Specify the file path
@@ -29,9 +30,7 @@ const parser = (inputFilePath) => {
   jsonStream.on('end', () => {
     // Extract the file number from the input file name
     const fileNumber = inputFilePath.match(/raw_graphql_response_(\d+)\.json/)[1];
-
-    // Generate the output file name based on the input file number
-    const outputFilePath = `output_${fileNumber}.json`;
+    const outputFilePath = path.join(__dirname, `output_${fileNumber}.json`);
 
     // Save the processed data to the output file
     fs.writeFile(outputFilePath, JSON.stringify(processedData, null, 2), (writeErr) => {
@@ -42,8 +41,6 @@ const parser = (inputFilePath) => {
       }
     });
   });
-
-  
 };
 
 module.exports = { parser };

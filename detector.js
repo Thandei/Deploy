@@ -1,6 +1,7 @@
 const fs = require('fs');
 const { parser } = require('./parser');
 const { readerAndSaveToMongo } = require('./reader');
+const path = require("path")
 
 const detector = async () => {
   const matchingFiles = [];
@@ -26,9 +27,9 @@ const detector = async () => {
 
   // Search for "serpResponse" attribute in multiple files
   for (let i = 1; i <= 50; i++) {
-    const filePath = `raw_graphql_response_${i}.json`;
+    // Use path.join to construct the absolute file path
+    const filePath = path.join(__dirname, `raw_graphql_response_${i}.json`);
 
-    // Check if the file exists and contains "serpResponse"
     if (fs.existsSync(filePath) && searchForSerpResponse(filePath)) {
       matchingFiles.push(filePath);
     }

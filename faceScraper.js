@@ -3,6 +3,7 @@ const fs = require('fs/promises');
 const {detector} = require("./detector");
 const { readerAndSaveToMongo } = require('./reader');
 const chromium = require('chrome-aws-lambda');
+const path = require('path'); 
 
 module.exports = async (searchQuery) => {
   const email = 'alperen.harmankasii@gmail.com';
@@ -94,9 +95,9 @@ module.exports = async (searchQuery) => {
 
   // Save each raw GraphQL response to a separate JSON file
   for (let i = 0; i < graphqlResponses.length; i++) {
-    fs.writeFile(`raw_graphql_response_${i + 1}.json`, graphqlResponses[i]);
-
-    
+    // Use path.join to construct the absolute file path
+    const filePath = path.join(__dirname, `raw_graphql_response_${i + 1}.json`);
+    await fs.writeFile(filePath, graphqlResponses[i]);
   }
 
 

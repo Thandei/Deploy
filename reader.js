@@ -2,6 +2,7 @@ const fs = require('fs');
 const { promisify } = require('util');
 const readdir = promisify(fs.readdir);
 const readFile = promisify(fs.readFile);
+const path = require('path'); // Import the 'path' module
 
 const waitForFiles = async (pattern, maxAttempts = 10, delay = 1000) => {
   let attempts = 0;
@@ -39,7 +40,7 @@ const readerAndSaveToMongo = async () => {
 
   // Iterate over each output file
   outputFiles.forEach(outputFile => {
-    const filePath = `./${outputFile}`;
+    const filePath = path.join(__dirname, outputFile); // Use path.join() to construct the file path
 
     // Read the content of each output file
     const data = fs.readFileSync(filePath, 'utf8');
@@ -80,7 +81,7 @@ const readerAndSaveToMongo = async () => {
   });
 
   // Save allResults to a single JSON file
-  const combinedFilePath = './allResponse.json';
+  const combinedFilePath = path.join(__dirname, 'allResponse.json'); // Use path.join() for the combined file path
   fs.writeFile(combinedFilePath, JSON.stringify(allResults, null, 2), (writeErr) => {
     if (writeErr) {
       console.error(`Error writing to the output file ${combinedFilePath}:`, writeErr);

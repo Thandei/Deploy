@@ -1,6 +1,7 @@
 const express = require('express');
 const { readerAndSaveToMongo } = require('./reader');
 const fs = require('fs/promises');
+const path = require('path'); // Add path module
 const app = express();
 const port = 3000;
 
@@ -12,8 +13,9 @@ app.get('/api/facebook', async (req, res) => {
   await require('./faceScraper')(userParam);
 
   try {
-    // Read the contents of allResponses.json
-    const jsonResponse = await fs.readFile('./allResponse.json', 'utf-8');
+    // Use path.join to construct the absolute file path
+    const jsonFilePath = path.join(__dirname, 'allResponse.json');
+    const jsonResponse = await fs.readFile(jsonFilePath, 'utf-8');
   
     // Send the JSON response
     res.json(JSON.parse(jsonResponse));
